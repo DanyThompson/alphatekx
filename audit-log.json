@@ -1,0 +1,230 @@
+[
+  {
+    "timestamp": "2026-06-28T11:32:14.846Z",
+    "actionTaken": "Detected 2 secret(s); remediation initiated. No secrets remain after remediation.",
+    "finalSecurityStatus": "AUTHORIZED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\pipeline-test-project"
+  },
+  {
+    "timestamp": "2026-06-28T11:32:14.856Z",
+    "actionTaken": "No action needed",
+    "finalSecurityStatus": "AUTHORIZED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\pipeline-test-project"
+  },
+  {
+    "timestamp": "2026-06-28T11:41:36.145Z",
+    "actionTaken": "Detected 1 secret(s); remediation initiated. No secrets remain after remediation.",
+    "finalSecurityStatus": "AUTHORIZED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\api-test-project"
+  },
+  {
+    "transactionID": "bc6a0860-b86a-4643-b63c-0034107995af",
+    "stage": "PREDEPLOY",
+    "timestamp": "2026-06-28T12:00:39.003Z",
+    "actionTaken": "Detected 2 secret(s); remediation initiated. No secrets remain after remediation.",
+    "finalSecurityStatus": "AUTHORIZED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\pipeline-test-project",
+    "initialCount": 2,
+    "projectHash": "b367b7e38a9fbf592d7f86e5b686da33"
+  },
+  {
+    "transactionID": "bc6a0860-b86a-4643-b63c-0034107995af",
+    "stage": "DEPLOY",
+    "timestamp": "2026-06-28T12:00:39.065Z",
+    "actionTaken": "Detected 2 secret(s); remediation initiated. No secrets remain after remediation. Deployment simulated to MeDo.",
+    "finalSecurityStatus": "DEPLOYED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\pipeline-test-project",
+    "initialCount": 2,
+    "projectHash": "b367b7e38a9fbf592d7f86e5b686da33"
+  },
+  {
+    "transactionID": "97102d66-18be-4be6-804e-d4918acd26b6",
+    "stage": "PREDEPLOY",
+    "timestamp": "2026-06-28T12:00:39.101Z",
+    "actionTaken": "No action needed",
+    "finalSecurityStatus": "AUTHORIZED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\pipeline-test-project",
+    "initialCount": 0,
+    "projectHash": "b367b7e38a9fbf592d7f86e5b686da33"
+  },
+  {
+    "transactionID": "97102d66-18be-4be6-804e-d4918acd26b6",
+    "stage": "DEPLOY",
+    "timestamp": "2026-06-28T12:00:39.109Z",
+    "actionTaken": "No action needed Deployment simulated to MeDo.",
+    "finalSecurityStatus": "DEPLOYED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\pipeline-test-project",
+    "initialCount": 0,
+    "projectHash": "b367b7e38a9fbf592d7f86e5b686da33"
+  },
+  {
+    "transactionID": "7ca72171-5bb6-42f4-bd69-fc07d4abaafb",
+    "stage": "PREDEPLOY",
+    "timestamp": "2026-06-28T12:01:54.008Z",
+    "actionTaken": "Detected 2 secret(s); remediation initiated. No secrets remain after remediation.",
+    "finalSecurityStatus": "AUTHORIZED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\pipeline-test-project",
+    "initialCount": 2,
+    "projectHash": "b367b7e38a9fbf592d7f86e5b686da33"
+  },
+  {
+    "transactionID": "c56713cc-8ff6-4f36-9fe4-7b99cf2800e2",
+    "stage": "PREDEPLOY",
+    "timestamp": "2026-06-28T12:01:54.018Z",
+    "actionTaken": "No action needed",
+    "finalSecurityStatus": "AUTHORIZED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\pipeline-test-project",
+    "initialCount": 0,
+    "projectHash": "b367b7e38a9fbf592d7f86e5b686da33"
+  },
+  {
+    "transactionID": "29fc519a-465d-4061-a3b1-aae115cb3227",
+    "stage": "PREDEPLOY",
+    "timestamp": "2026-06-28T12:43:41.236Z",
+    "actionTaken": "Detected 1 secret(s); remediation initiated. No secrets remain after remediation.",
+    "finalSecurityStatus": "AUTHORIZED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\api-test-project",
+    "initialCount": 1,
+    "projectHash": "657c707f23e366f2f3961650f6f0c679"
+  },
+  {
+    "transactionID": "29fc519a-465d-4061-a3b1-aae115cb3227",
+    "stage": "DEPLOY",
+    "timestamp": "2026-06-28T12:43:41.244Z",
+    "actionTaken": "Detected 1 secret(s); remediation initiated. No secrets remain after remediation. Deployment simulated to MeDo.",
+    "finalSecurityStatus": "DEPLOYED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\api-test-project",
+    "initialCount": 1,
+    "projectHash": "657c707f23e366f2f3961650f6f0c679"
+  },
+  {
+    "transactionID": "2fb2fd78-29b0-4e96-af88-42f1ec3fe0a5",
+    "stage": "ERROR",
+    "timestamp": "2026-06-28T14:47:35.588Z",
+    "actionTaken": "Exception during pipeline: ENOENT: no such file or directory, scandir 'C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}''. Rollback executed.",
+    "finalSecurityStatus": "DENIED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}'",
+    "initialCount": 0,
+    "projectHash": null
+  },
+  {
+    "transactionID": "d5b5cf45-f69d-4962-ade8-53cef1c5916b",
+    "stage": "ERROR",
+    "timestamp": "2026-06-28T14:47:41.552Z",
+    "actionTaken": "Exception during pipeline: ENOENT: no such file or directory, scandir 'C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}''. Rollback executed.",
+    "finalSecurityStatus": "DENIED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}'",
+    "initialCount": 0,
+    "projectHash": null
+  },
+  {
+    "transactionID": "d6a046b9-7edb-4404-9f01-d8c6a92b3158",
+    "stage": "ERROR",
+    "timestamp": "2026-06-28T14:47:42.804Z",
+    "actionTaken": "Exception during pipeline: ENOENT: no such file or directory, scandir 'C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}''. Rollback executed.",
+    "finalSecurityStatus": "DENIED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}'",
+    "initialCount": 0,
+    "projectHash": null
+  },
+  {
+    "transactionID": "df8a8d41-da06-4d00-ade0-dcaadc021ad7",
+    "stage": "ERROR",
+    "timestamp": "2026-06-28T14:47:43.587Z",
+    "actionTaken": "Exception during pipeline: ENOENT: no such file or directory, scandir 'C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}''. Rollback executed.",
+    "finalSecurityStatus": "DENIED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}'",
+    "initialCount": 0,
+    "projectHash": null
+  },
+  {
+    "transactionID": "1862618f-de1b-465f-beb0-ec850a49477b",
+    "stage": "ERROR",
+    "timestamp": "2026-06-28T14:47:44.077Z",
+    "actionTaken": "Exception during pipeline: ENOENT: no such file or directory, scandir 'C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}''. Rollback executed.",
+    "finalSecurityStatus": "DENIED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}'",
+    "initialCount": 0,
+    "projectHash": null
+  },
+  {
+    "transactionID": "6a3e9809-eaca-4b35-a1d0-5ad04a25bdee",
+    "stage": "ERROR",
+    "timestamp": "2026-06-28T14:47:44.407Z",
+    "actionTaken": "Exception during pipeline: ENOENT: no such file or directory, scandir 'C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}''. Rollback executed.",
+    "finalSecurityStatus": "DENIED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}'",
+    "initialCount": 0,
+    "projectHash": null
+  },
+  {
+    "transactionID": "d536b58b-79f4-4225-960b-25af04f29ce6",
+    "stage": "ERROR",
+    "timestamp": "2026-06-28T14:47:44.698Z",
+    "actionTaken": "Exception during pipeline: ENOENT: no such file or directory, scandir 'C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}''. Rollback executed.",
+    "finalSecurityStatus": "DENIED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}'",
+    "initialCount": 0,
+    "projectHash": null
+  },
+  {
+    "transactionID": "bdf4bbfa-6529-4da8-a717-39499be10584",
+    "stage": "ERROR",
+    "timestamp": "2026-06-28T14:47:45.060Z",
+    "actionTaken": "Exception during pipeline: ENOENT: no such file or directory, scandir 'C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}''. Rollback executed.",
+    "finalSecurityStatus": "DENIED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}'",
+    "initialCount": 0,
+    "projectHash": null
+  },
+  {
+    "transactionID": "042963b7-de7a-41b5-b235-502e998154d5",
+    "stage": "ERROR",
+    "timestamp": "2026-06-28T14:47:45.400Z",
+    "actionTaken": "Exception during pipeline: ENOENT: no such file or directory, scandir 'C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}''. Rollback executed.",
+    "finalSecurityStatus": "DENIED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}'",
+    "initialCount": 0,
+    "projectHash": null
+  },
+  {
+    "transactionID": "c792bc22-cda3-4a77-b324-ca8f948dafb2",
+    "stage": "ERROR",
+    "timestamp": "2026-06-28T14:47:45.744Z",
+    "actionTaken": "Exception during pipeline: ENOENT: no such file or directory, scandir 'C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}''. Rollback executed.",
+    "finalSecurityStatus": "DENIED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}'",
+    "initialCount": 0,
+    "projectHash": null
+  },
+  {
+    "transactionID": "a99bc702-cfdf-4f75-b397-83584b8b7fb0",
+    "stage": "ERROR",
+    "timestamp": "2026-06-28T14:47:46.081Z",
+    "actionTaken": "Exception during pipeline: ENOENT: no such file or directory, scandir 'C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}''. Rollback executed.",
+    "finalSecurityStatus": "DENIED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}'",
+    "initialCount": 0,
+    "projectHash": null
+  },
+  {
+    "transactionID": "ee83479a-58dc-4f53-81d0-b636a410f39c",
+    "stage": "ERROR",
+    "timestamp": "2026-06-28T14:47:46.423Z",
+    "actionTaken": "Exception during pipeline: ENOENT: no such file or directory, scandir 'C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}''. Rollback executed.",
+    "finalSecurityStatus": "DENIED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}'",
+    "initialCount": 0,
+    "projectHash": null
+  },
+  {
+    "transactionID": "cdf90786-a862-4230-9fd6-606daade58f6",
+    "stage": "ERROR",
+    "timestamp": "2026-06-28T14:47:47.325Z",
+    "actionTaken": "Exception during pipeline: ENOENT: no such file or directory, scandir 'C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}''. Rollback executed.",
+    "finalSecurityStatus": "DENIED",
+    "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\# Check health curl http:\\localhost:4000\\health  # View API endpoints curl http:\\localhost:4000\\  # Deploy with auth (requires X-Alphatekx-Key or Bearer token) curl -X POST http:\\localhost:4000\\api\\deploy `   -H \"X-Alphatekx-Key: alpha-tekx-enterprise-key\" `   -H \"Content-Type: application\\json\" `   -d '{\"projectPath\":\"c:\\path\\to\\project\"}'",
+    "initialCount": 0,
+    "projectHash": null
+  }
+]
