@@ -17,7 +17,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@/": path.resolve(__dirname, "./src"),
     },
     // Ensure a single React instance across all packages (e.g. @sentry/react).
     // Without this, @sentry/react can resolve its own React copy, causing
