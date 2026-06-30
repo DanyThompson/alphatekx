@@ -5,6 +5,7 @@ import path from "path";
 
 export default defineConfig({
   root: ".",
+  base: "/",
   plugins: [
     react(),
     svgr({
