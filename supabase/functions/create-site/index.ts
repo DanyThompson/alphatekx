@@ -1,0 +1,384 @@
+import { createClient } from 'npm:@supabase/supabase-js@2';
+
+/* ══════════════════════════════════════════════════════════════════
+   REAL CODE SCANNER
+   Inspects HTML/JS content and flags known vulnerability patterns.
+══════════════════════════════════════════════════════════════════ */
+interface ScanIssue {
+  type: string;
+  severity: 'critical' | 'medium' | 'low';
+  description: string;
+}
+
+function scanContent(files: Array<{ path: string; content: Uint8Array; mimeType: string }>): ScanIssue[] {
+  const issues: ScanIssue[] = [];
+  const seenTypes = new Set<string>();
+
+  const flag = (issue: ScanIssue) => {
+    if (!seenTypes.has(issue.type)) {
+      seenTypes.add(issue.type);
+      issues.push(issue);
+    }
+  };
+
+  for (const file of files) {
+    const isText = file.mimeType.startsWith('text/') || file.mimeType.includes('javascript');
+    if (!isText) continue;
+
+    const text = new TextDecoder().decode(file.content);
+
+    // XSS: inline event handlers (onclick, onerror, onload in attribute form)
+    if (/\son\w+\s*=\s*["'][^"']*["']/i.test(text)) {
+      flag({ type: 'XSS', severity: 'critical', description: 'Inline event handler detected — potential XSS vector.' });
+    }
+    // XSS: document.write with user-controlled data patterns
+    if (/document\.write\s*\(/i.test(text)) {
+      flag({ type: 'XSS', severity: 'critical', description: 'document.write() usage detected — high XSS risk.' });
+    }
+    // Unsafe eval
+    if (/\beval\s*\(/.test(text)) {
+      flag({ type: 'UnsafeEval', severity: 'critical', description: 'eval() call detected — arbitrary code execution risk.' });
+    }
+    // Exposed API keys / secrets — common patterns
+    if (/(?:api[_-]?key|apikey|secret[_-]?key|auth[_-]?token|access[_-]?token)\s*[:=]\s*["'][A-Za-z0-9_\-]{16,}["']/i.test(text)) {
+      flag({ type: 'ExposedKey', severity: 'critical', description: 'Hardcoded API key or secret detected in source.' });
+    }
+    // Mixed content: http:// in src/href inside an otherwise HTTPS page
+    if (/(?:src|href|url)\s*=\s*["']http:\/\//i.test(text)) {
+      flag({ type: 'MixedContent', severity: 'medium', description: 'HTTP resource in HTTPS page — mixed content warning.' });
+    }
+    // Outdated jQuery
+    if (/jquery[.-]1\.\d+/i.test(text) || /jquery[.-]2\.\d+/i.test(text)) {
+      flag({ type: 'OutdatedLib', severity: 'low', description: 'Outdated jQuery version with known CVEs detected.' });
+    }
+    // innerHTML with variable assignment
+    if (/\.innerHTML\s*=\s*(?!["']<)/i.test(text)) {
+      flag({ type: 'DOMInjection', severity: 'medium', description: 'Dynamic innerHTML assignment — potential DOM-based XSS.' });
+    }
+    // window.location based redirects without validation
+    if (/window\.location\s*=\s*(?:location\.(?:search|hash)|.*?(?:get|param))/i.test(text)) {
+      flag({ type: 'OpenRedirect', severity: 'medium', description: 'Unvalidated redirect via window.location — open redirect risk.' });
+    }
+  }
+
+  return issues;
+}
+
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...CORS, 'Content-Type': 'application/json' },
+  });
+}
+
+function guessMime(filename: string): string {
+  const ext = filename.split('.').pop()?.toLowerCase() ?? '';
+  const map: Record<string, string> = {
+    html: 'text/html', htm: 'text/html', css: 'text/css',
+    js: 'application/javascript', mjs: 'application/javascript',
+    ts: 'application/javascript',
+    json: 'application/json', png: 'image/png', jpg: 'image/jpeg',
+    jpeg: 'image/jpeg', gif: 'image/gif', svg: 'image/svg+xml',
+    webp: 'image/webp', woff: 'font/woff', woff2: 'font/woff2',
+    txt: 'text/plain', md: 'text/plain', ico: 'image/x-icon',
+    xml: 'text/xml', pdf: 'application/pdf',
+  };
+  return map[ext] ?? 'application/octet-stream';
+}
+
+/**
+ * Normalise a user-supplied URL so we can actually fetch HTML from it.
+ * - GitHub repo  → fetch README.md (raw) or the GitHub pages URL
+ * - GitHub blob  → convert to raw.githubusercontent.com
+ * - Anything else → return as-is
+ */
+function normaliseUrl(raw: string): string {
+  try {
+    const u = new URL(raw.trim());
+
+    // github.com/user/repo  (no extra path)
+    const ghRepo = u.hostname === 'github.com' && /^\/[^/]+\/[^/]+\/?$/.test(u.pathname);
+    if (ghRepo) {
+      const [, owner, repo] = u.pathname.split('/');
+      // try to fetch the raw README from the default branch
+      return `https://raw.githubusercontent.com/${owner}/${repo}/main/README.md`;
+    }
+
+    // github.com/user/repo/blob/branch/file → raw.githubusercontent.com
+    if (u.hostname === 'github.com' && u.pathname.includes('/blob/')) {
+      return raw
+        .replace('github.com', 'raw.githubusercontent.com')
+        .replace('/blob/', '/');
+    }
+
+    return raw.trim();
+  } catch {
+    return raw.trim();
+  }
+}
+
+/**
+ * Wrap arbitrary text/code in a full HTML page if it isn't already one.
+ */
+function ensureFullHtml(content: string, title = 'My Site'): string {
+  const trimmed = content.trimStart();
+  if (/^<!doctype/i.test(trimmed) || /^<html/i.test(trimmed)) return content;
+  // Looks like partial HTML or plain text — wrap it
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>${title}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 860px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; }
+    pre, code { background: #f4f4f4; padding: 0.2em 0.4em; border-radius: 4px; }
+    pre code { display: block; padding: 1em; overflow-x: auto; }
+    img { max-width: 100%; }
+  </style>
+</head>
+<body>
+${content}
+</body>
+</html>`;
+}
+
+// ── Main handler ──────────────────────────────────────────────────────────────
+Deno.serve(async (req: Request): Promise<Response> => {
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
+  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
+
+  try {
+    // ── Auth ───────────────────────────────────────────────────────────────
+    const authHeader = req.headers.get('Authorization') ?? '';
+    if (!authHeader.startsWith('Bearer ')) return json({ error: 'Unauthorized' }, 401);
+
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    );
+
+    const jwt = authHeader.replace('Bearer ', '').trim();
+    const { data: { user }, error: authErr } = await supabaseAdmin.auth.getUser(jwt);
+    if (authErr || !user) return json({ error: 'Invalid or expired token. Please log in again.' }, 401);
+
+    // ── Parse multipart form ───────────────────────────────────────────────
+    const contentType = req.headers.get('content-type') ?? '';
+    let subdomain = '';
+    let deployUrl = '';
+    const uploadedFiles: Array<{ path: string; content: Uint8Array; mimeType: string }> = [];
+
+    if (contentType.includes('multipart/form-data')) {
+      const form = await req.formData();
+      subdomain  = ((form.get('subdomain') as string) ?? '').trim();
+      deployUrl  = ((form.get('url')       as string) ?? '').trim();
+
+      for (const [, value] of form.entries()) {
+        if (value instanceof File) {
+          // Use the filename as supplied — PipelinePage sends webkitRelativePath as the name,
+          // which already strips the root folder prefix (e.g. "mysite/index.html" → "index.html")
+          let filePath = value.name || 'index.html';
+          // Strip leading root-folder segment if the browser included it (e.g. "dist/index.html" → "index.html" only if single-folder root)
+          // Keep deeper paths intact so folder structure is preserved
+          filePath = filePath.replace(/^[^/]+\//, ''); // remove first folder segment (the root folder name)
+          if (!filePath) filePath = value.name; // fallback if name was just "index.html"
+          const buf = await value.arrayBuffer();
+          uploadedFiles.push({
+            path:     filePath,
+            content:  new Uint8Array(buf),
+            mimeType: value.type || guessMime(value.name),
+          });
+        }
+      }
+    } else {
+      // JSON body fallback
+      try {
+        const body = await req.json();
+        subdomain = (body.subdomain ?? '').toString().trim();
+        deployUrl = (body.url       ?? '').toString().trim();
+      } catch {
+        return json({ error: 'Invalid request body — expected multipart/form-data or JSON' }, 400);
+      }
+    }
+
+    if (!subdomain) return json({ error: 'subdomain is required' }, 400);
+
+    // ── Subdomain ownership check ──────────────────────────────────────────
+    const { data: existing } = await supabaseAdmin
+      .from('site_deployments')
+      .select('id, user_id')
+      .eq('subdomain', subdomain)
+      .maybeSingle();
+
+    if (existing && existing.user_id !== user.id) {
+      return json({ error: 'This subdomain is already taken by another user.' }, 409);
+    }
+
+    // ── Credit deduction (with profile auto-create for new Google users) ──
+    let creditBalance = 0;
+    {
+      const { data: cd, error: creditErr } = await supabaseAdmin.rpc('deduct_credits', {
+        p_user_id:    user.id,
+        p_amount:     1,
+        p_action_type: 'deploy',
+      });
+
+      if (creditErr) {
+        console.warn('deduct_credits error, attempting profile upsert:', creditErr.message);
+        await supabaseAdmin.from('profiles').upsert(
+          { id: user.id, email: user.email ?? '', credit_balance: 20 },
+          { onConflict: 'id', ignoreDuplicates: true },
+        );
+        const { data: cd2, error: ce2 } = await supabaseAdmin.rpc('deduct_credits', {
+          p_user_id: user.id, p_amount: 1, p_action_type: 'deploy',
+        });
+        if (ce2) return json({ error: `Credit system error: ${ce2.message}` }, 500);
+        if (!cd2?.success) return json({ error: 'insufficient_credits', balance: cd2?.balance ?? 0 }, 402);
+        creditBalance = cd2.balance ?? 0;
+      } else {
+        if (!cd?.success) return json({ error: 'insufficient_credits', balance: cd?.balance ?? 0 }, 402);
+        creditBalance = cd.balance ?? 0;
+      }
+    }
+
+    // ── Fetch URL content (for link-based deploy) ─────────────────────────
+    if (deployUrl && uploadedFiles.length === 0) {
+      const fetchUrl = normaliseUrl(deployUrl);
+      console.log(`[create-site] Fetching URL: ${fetchUrl}`);
+      try {
+        const resp = await fetch(fetchUrl, {
+          signal:  AbortSignal.timeout(20_000),
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; AlphaTekxBot/1.0; +https://alphatekx.com)',
+            'Accept':     'text/html,application/xhtml+xml,text/plain,*/*',
+          },
+          redirect: 'follow',
+        });
+        if (!resp.ok) throw new Error(`Remote server returned HTTP ${resp.status} ${resp.statusText}`);
+
+        const rawText = await resp.text();
+        // Determine file extension from content-type or URL
+        const ctype = resp.headers.get('content-type') ?? '';
+        const isMarkdown = fetchUrl.endsWith('.md') || ctype.includes('text/plain');
+        const html = isMarkdown
+          ? ensureFullHtml(rawText, subdomain)   // wrap markdown/plain text in a page
+          : ensureFullHtml(rawText, subdomain);  // ensure full HTML document
+
+        uploadedFiles.push({
+          path:     'index.html',
+          content:  new TextEncoder().encode(html),
+          mimeType: 'text/html; charset=utf-8',
+        });
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        return json({
+          error: `Could not fetch "${deployUrl}": ${msg}. Try pasting the HTML code directly instead.`,
+        }, 422);
+      }
+    }
+
+    if (uploadedFiles.length === 0) {
+      return json({ error: 'No files to deploy. Paste code or provide a URL.' }, 400);
+    }
+
+    // Ensure the primary HTML file is a complete document
+    for (const f of uploadedFiles) {
+      if (f.path === 'index.html' || f.path.endsWith('.html')) {
+        const text = new TextDecoder().decode(f.content);
+        const wrapped = ensureFullHtml(text, subdomain);
+        f.content  = new TextEncoder().encode(wrapped);
+        f.mimeType = 'text/html; charset=utf-8';
+        break;
+      }
+    }
+
+    // ── REAL Security Scan ────────────────────────────────────────────────
+    const scanIssues = scanContent(uploadedFiles);
+    const scanSummary = scanIssues.length === 0
+      ? 'All clear — 0 vulnerabilities detected.'
+      : `${scanIssues.length} issue(s) found: ${scanIssues.map(i => i.type).join(', ')}`;
+    console.log(`[create-site] scan: ${scanSummary}`);
+
+    // ── Upload files to Supabase Storage SEQUENTIALLY (safer, deterministic) ─
+    const filePaths: string[] = [];
+    let uploadErrors = 0;
+
+    for (const file of uploadedFiles) {
+      const storagePath = `${subdomain}/${file.path}`;
+      try {
+        const { error: upErr } = await supabaseAdmin.storage
+          .from('sites')
+          .upload(storagePath, file.content, { contentType: file.mimeType, upsert: true });
+        if (upErr) {
+          console.error(`[create-site] Upload failed for ${storagePath}:`, upErr.message);
+          uploadErrors += 1;
+          // stop on first critical upload failure to keep pipeline deterministic
+          return json({ error: `Storage upload failed for ${storagePath}: ${upErr.message}` }, 500);
+        }
+        // Verify the file exists immediately after upload
+        const { data: meta, error: statErr } = await supabaseAdmin.storage.from('sites').list(subdomain, { search: file.path });
+        if (statErr || !meta || meta.length === 0) {
+          console.warn(`[create-site] Verification failed for ${storagePath}`, statErr?.message ?? 'no metadata');
+          uploadErrors += 1;
+          return json({ error: `Uploaded but verification failed for ${storagePath}` }, 500);
+        }
+        filePaths.push(storagePath);
+      } catch (e) {
+        const m = e instanceof Error ? e.message : String(e);
+        console.error(`[create-site] Exception uploading ${storagePath}:`, m);
+        uploadErrors += 1;
+        return json({ error: `Exception during upload for ${storagePath}: ${m}` }, 500);
+      }
+    }
+
+    if (filePaths.length === 0) {
+      return json({ error: `Storage upload failed (${uploadErrors} file(s)).` }, 500);
+    }
+
+    // ── Build live URL via serve-site proxy (strips Supabase's restrictive CSP) ──
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const projectRef  = supabaseUrl.replace('https://', '').replace('.supabase.co', '');
+    const htmlEntry   = filePaths.find(p => p.endsWith('index.html'))
+                     ?? filePaths.find(p => p.endsWith('.html'))
+                     ?? filePaths[0];
+    const entryFile   = htmlEntry.replace(`${subdomain}/`, '');
+    // Proxy URL — scripts/styles/images all work because serve-site removes the sandbox CSP
+    const liveUrl     = `https://${projectRef}.supabase.co/functions/v1/serve-site/${subdomain}/${entryFile}`;
+
+    // ── Record deployment ─────────────────────────────────────────────────
+    const { error: dbErr } = await supabaseAdmin
+      .from('site_deployments')
+      .upsert({
+        user_id:    user.id,
+        subdomain,
+        file_paths: filePaths,
+        live_url:   liveUrl,
+        status:     'active',
+      }, { onConflict: 'subdomain' });
+    if (dbErr) console.error('[create-site] DB record error:', dbErr.message);
+
+    console.log(`[create-site] ✅ Deployed ${subdomain} → ${liveUrl}`);
+    const publicUrl = `http://${subdomain}.alphatekx.name.ng`;
+    return json({
+      success: true,
+      live_url: liveUrl,
+      public_url: publicUrl,
+      balance: creditBalance,
+      subdomain,
+      scan_issues: scanIssues,
+      scan_summary: scanSummary,
+    });
+
+  } catch (err) {
+    console.error('[create-site] Unhandled error:', err);
+    const msg = err instanceof Error ? err.message : String(err);
+    return json({ error: `Server error: ${msg}` }, 500);
+  }
+});
+
