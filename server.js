@@ -120,6 +120,7 @@ const authMiddleware = (req, res, next) => {
 };
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'dist')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/api/upload-scan', async (req, res) => {
@@ -206,18 +207,15 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.json({
-    message: 'AlphaTekx Deployment Guardian API is running.',
-    endpoints: [
-      '/health',
-      '/api/deploy',
-      '/api/report',
-      '/api/plugins',
-      '/api/status/:transactionID',
-      '/api/keys',
-    ],
-    auth: 'Use X-Alphatekx-Key or Authorization: Bearer <key>',
-  });
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ error: 'Not found', path: req.originalUrl, message: 'Check / for available endpoints.' });
+  }
+
+  return res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 app.use((req, res) => {
