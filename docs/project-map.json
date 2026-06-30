@@ -1,0 +1,75 @@
+{
+  "project": "AlphaTekx AI OS Platform",
+  "version": "v245",
+  "builderMode": "single-file-html",
+  "description": "All generated apps are self-contained HTML files with embedded CSS (Tailwind CDN) and JavaScript. No build step required. Data persisted in localStorage.",
+
+  "cdnLibraries": {
+    "available": [
+      { "name": "Tailwind CSS", "cdn": "https://cdn.tailwindcss.com", "use": "all styling" },
+      { "name": "GSAP 3.12.5", "cdn": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js", "use": "animations, counters, scroll triggers" },
+      { "name": "ScrollTrigger", "cdn": "https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js", "use": "scroll-based animations" },
+      { "name": "Chart.js 4.4.0", "cdn": "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js", "use": "bar, line, doughnut, radar charts" },
+      { "name": "SortableJS 1.15.2", "cdn": "https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js", "use": "kanban drag-drop, sortable lists" },
+      { "name": "Day.js 1.11.10", "cdn": "https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js", "use": "date formatting, relative time" },
+      { "name": "Marked.js", "cdn": "https://cdn.jsdelivr.net/npm/marked/marked.min.js", "use": "markdown rendering (AI chat apps only)" },
+      { "name": "Highlight.js 11.9.0", "cdn": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js", "use": "syntax highlighting (AI chat, code editors)" },
+      { "name": "Inter Font", "cdn": "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..900&display=swap", "use": "primary font for all apps" }
+    ],
+    "freeApis": [
+      { "name": "Pollinations AI", "endpoint": "https://text.pollinations.ai/", "use": "free LLM streaming (chat apps)" },
+      { "name": "Weather", "endpoint": "https://wttr.in/{city}?format=j1", "use": "weather data" },
+      { "name": "CoinGecko", "endpoint": "https://api.coingecko.com/api/v3/simple/price", "use": "crypto prices" },
+      { "name": "Open-Meteo", "endpoint": "https://api.open-meteo.com/v1/forecast", "use": "forecast data, no key required" },
+      { "name": "ExchangeRate", "endpoint": "https://open.er-api.com/v6/latest/USD", "use": "forex rates" },
+      { "name": "Random User", "endpoint": "https://randomuser.me/api/?results=10", "use": "seed user data" },
+      { "name": "HN News", "endpoint": "https://hn.algolia.com/api/v1/search?tags=front_page", "use": "news feed" }
+    ]
+  },
+
+  "appArchitecture": {
+    "pattern": "Class-based App controller",
+    "entryPoint": "new App() on DOMContentLoaded",
+    "stateManagement": "localStorage via this.store",
+    "rendering": "innerHTML assignment to #root element",
+    "eventBinding": "event delegation from document or #root",
+    "dataSeeding": "this.seed() called on first load if store is empty"
+  },
+
+  "styleTokens": {
+    "brand": "#6366f1",
+    "brandLight": "#818cf8",
+    "brandDark": "#4f46e5",
+    "accent": "#06b6d4",
+    "bg0": "#04060f",
+    "bg1": "#07091b",
+    "bg2": "#0a0e24",
+    "bg3": "#0f1430",
+    "text1": "#f1f5f9",
+    "text2": "#94a3b8",
+    "text3": "#475569",
+    "success": "#10b981",
+    "warning": "#f59e0b",
+    "error": "#ef4444"
+  },
+
+  "conversionPrinciples": [
+    "Primary CTA must be visible above the fold at 1280x720",
+    "CTA copy uses action verbs: Book, Start, Get, Try, Build",
+    "Place social proof within 2 sections of the hero",
+    "Every pricing card has a distinct CTA",
+    "Forms have inline validation and a clear success state",
+    "Never use placeholder text or lorem ipsum in final output"
+  ],
+
+  "qualityChecklist": [
+    "All buttons have working onClick handlers",
+    "All forms have validation",
+    "All tables have search, sort, and pagination",
+    "All modals close on Escape and backdrop click",
+    "All lists are pre-seeded with 10-15 realistic records",
+    "GSAP animations are initialized after render",
+    "Charts use the dark premium config from style guide",
+    "Mobile responsive (tested at 375px)"
+  ]
+}

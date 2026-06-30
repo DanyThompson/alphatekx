@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>AlphaTekx Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: radial-gradient(circle at top, rgba(22, 64, 135, 0.4), transparent 28%),
+          radial-gradient(circle at bottom right, rgba(41, 113, 207, 0.22), transparent 24%),
+          #050d1a;
+        color: #eef2ff;
+      }
+
+      body {
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+
+      .app-shell {
+        min-height: 100vh;
+        padding: 1.5rem 1rem 1rem;
+      }
+
+      .glass-panel {
+        background: rgba(15, 23, 42, 0.76);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 32px 90px rgba(0, 0, 0, 0.24);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 28px;
+      }
+
+      .glass-panel strong,
+      .glass-panel p,
+      .glass-panel span,
+      .glass-panel h2 {
+        color: #f8fafc;
+      }
+
+      .status-pill {
+        transition: background-color 0.3s ease, color 0.3s ease, transform 0.25s ease;
+      }
+
+      .progress-track {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 9999px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        width: 0;
+        min-height: 0.95rem;
+        background: linear-gradient(90deg, #60a5fa 0%, #0ea5e9 100%);
+        transition: width 0.45s ease;
+      }
+
+      .mobile-action-bar {
+        display: none;
+      }
+
+      @media (max-width: 1023px) {
+        .app-shell {
+          padding-bottom: 5.75rem;
+        }
+
+        .grid-layout {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 1.25rem;
+        }
+
+        .mobile-action-bar {
+          display: flex;
+          position: fixed;
+          inset: auto 0 0;
+          z-index: 30;
+          padding: 1rem;
+          justify-content: center;
+          backdrop-filter: blur(16px);
+          background: rgba(5, 13, 26, 0.92);
+          border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .grid-layout {
+          display: grid;
+          grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+          gap: 1.75rem;
+        }
+      }
+
+      input,
+      button {
+        font: inherit;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <header class="mb-6">
+        <div class="glass-panel p-6 sm:p-8">
+          <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p class="text-sm uppercase tracking-[0.35em] text-slate-400">AlphaTekx Command Center</p>
+              <h1 class="mt-4 text-3xl font-semibold text-white sm:text-4xl">Security Dashboard</h1>
+              <p class="mt-3 text-slate-300 text-base sm:text-lg">Deploy with confidence from any device. AlphaTekx protects every push with enterprise-grade security.</p>
+            </div>
+            <div class="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-lg sm:p-6">
+              <p class="text-sm uppercase tracking-[0.35em] text-slate-400">Total Money Saved</p>
+              <p id="money-saved" class="mt-4 text-3xl font-semibold text-white sm:text-4xl">$0</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="grid-layout">
+        <section class="glass-panel p-6 sm:p-8">
+          <div class="flex flex-col gap-6">
+            <div>
+              <h2 class="text-2xl font-semibold text-white">Deploy Project</h2>
+              <p class="mt-3 text-slate-300">Enter the path to the project you want AlphaTekx to secure and deploy. One hand, one tap, complete control.</p>
+            </div>
+
+            <div class="space-y-4">
+              <label class="block text-sm font-medium text-slate-300" for="project-path">Project Path</label>
+              <input id="project-path" type="text" class="w-full rounded-3xl border border-white/10 bg-slate-950/40 px-4 py-4 text-white outline-none transition duration-200 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/30" placeholder="C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep" />
+            </div>
+
+            <div class="glass-panel border border-white/10 bg-white/5 p-5">
+              <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p class="text-sm uppercase tracking-[0.35em] text-slate-400">Alpha Status</p>
+                  <p id="deployment-stage" class="mt-2 text-xl font-semibold text-white">Ready</p>
+                </div>
+                <span id="deployment-status" class="status-pill inline-flex items-center rounded-full bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-950">Secure</span>
+              </div>
+              <div class="mt-5 progress-track">
+                <div id="deployment-progress-fill" class="progress-fill"></div>
+              </div>
+            </div>
+
+            <div id="deploy-feedback" class="hidden rounded-3xl border border-white/10 bg-white/5 p-5 text-sm text-slate-200"></div>
+
+            <button id="deploy-button" class="w-full rounded-3xl bg-sky-500 px-6 py-4 text-base font-semibold text-white shadow-xl shadow-sky-500/20 transition duration-200 hover:bg-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/60">Shield-Secure & Deploy</button>
+          </div>
+        </section>
+
+        <section class="glass-panel p-6 sm:p-8">
+          <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 class="text-2xl font-semibold text-white">Audit Log</h2>
+              <p class="mt-2 text-slate-300">Live summary pulled from AlphaTekx security analytics.</p>
+            </div>
+            <button id="refresh-report" class="rounded-3xl bg-white/10 px-5 py-3 text-sm font-semibold text-white transition duration-200 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-sky-500/50">Refresh</button>
+          </div>
+
+          <div class="mt-8 grid gap-4 sm:grid-cols-1">
+            <div class="rounded-3xl border border-white/10 bg-slate-950/40 p-5">
+              <p class="text-sm uppercase tracking-[0.35em] text-slate-400">Deploys processed</p>
+              <p id="deploy-count" class="mt-3 text-3xl font-semibold text-white">0</p>
+            </div>
+            <div class="rounded-3xl border border-white/10 bg-slate-950/40 p-5">
+              <p class="text-sm uppercase tracking-[0.35em] text-slate-400">Threats blocked</p>
+              <p id="blocked-count" class="mt-3 text-3xl font-semibold text-white">0</p>
+            </div>
+            <div class="rounded-3xl border border-white/10 bg-slate-950/40 p-5">
+              <p class="text-sm uppercase tracking-[0.35em] text-slate-400">Security Score</p>
+              <p id="security-score" class="mt-3 text-3xl font-semibold text-white">0%</p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="page-footer mt-10 text-sm text-slate-500">AlphaTekx Command Center &mdash; Secure deployment orchestration for modern infrastructure.</footer>
+    </div>
+
+    <div class="mobile-action-bar">
+      <button id="deploy-button-mobile" class="inline-flex w-full items-center justify-center rounded-3xl bg-sky-500 px-6 py-4 text-base font-semibold text-white shadow-xl shadow-sky-500/20 transition duration-200 hover:bg-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/60">Shield-Secure & Deploy</button>
+    </div>
+
+    <script>
+      const API_KEY = 'alpha-tekx-enterprise-key';
+      const reportUrl = '/api/report';
+      const deployUrl = '/api/deploy';
+      const moneySavedEl = document.getElementById('money-saved');
+      const deployCountEl = document.getElementById('deploy-count');
+      const blockedCountEl = document.getElementById('blocked-count');
+      const securityScoreEl = document.getElementById('security-score');
+      const feedbackEl = document.getElementById('deploy-feedback');
+      const deployButton = document.getElementById('deploy-button');
+      const deployButtonMobile = document.getElementById('deploy-button-mobile');
+      const projectPathInput = document.getElementById('project-path');
+      const refreshButton = document.getElementById('refresh-report');
+      const deploymentStatusEl = document.getElementById('deployment-status');
+      const deploymentStageEl = document.getElementById('deployment-stage');
+      const deploymentProgressFill = document.getElementById('deployment-progress-fill');
+
+      let progressTimers = [];
+
+      function clearProgressTimers() {
+        progressTimers.forEach((timer) => clearTimeout(timer));
+        progressTimers = [];
+      }
+
+      function setDeployState({ label, value, color = 'bg-sky-500', progress = 0 }) {
+        deploymentStatusEl.textContent = label;
+        deploymentStatusEl.className = `status-pill inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold ${color}`;
+        deploymentStageEl.textContent = value;
+        deploymentProgressFill.style.width = `${progress}%`;
+      }
+
+      function animateDeploymentFlow() {
+        clearProgressTimers();
+        setDeployState({ label: 'Live', value: 'Queued', progress: 8, color: 'bg-slate-200 text-slate-950' });
+        progressTimers.push(setTimeout(() => setDeployState({ label: 'Live', value: 'Scanning', progress: 22, color: 'bg-sky-500' }), 800));
+        progressTimers.push(setTimeout(() => setDeployState({ label: 'Live', value: 'Remediating', progress: 44, color: 'bg-sky-500' }), 1700));
+        progressTimers.push(setTimeout(() => setDeployState({ label: 'Live', value: 'Verifying', progress: 66, color: 'bg-sky-500' }), 2800));
+        progressTimers.push(setTimeout(() => setDeployState({ label: 'Live', value: 'Deploying', progress: 82, color: 'bg-sky-500' }), 3900));
+      }
+
+      async function fetchReport() {
+        try {
+          const response = await fetch(reportUrl, { cache: 'no-store', headers: { 'X-Alphatekx-Key': API_KEY } });
+          if (!response.ok) throw new Error('Failed to fetch report.');
+          const data = await response.json();
+          const report = data.report || {};
+          moneySavedEl.innerText = `$${(report.totalFinancialLossPrevented || 0).toLocaleString()}`;
+          deployCountEl.innerText = (report.totalDeploys || 0).toString();
+          blockedCountEl.innerText = (report.deniedDeploys || 0).toString();
+          securityScoreEl.innerText = `${report.securityScore || 0}%`;
+          feedbackEl.classList.add('hidden');
+        } catch (error) {
+          console.error(error);
+          feedbackEl.innerText = 'Unable to load audit summary. Please try again.';
+          feedbackEl.classList.remove('hidden');
+        }
+      }
+
+      async function deployProject() {
+        const projectPath = projectPathInput.value.trim();
+        if (!projectPath) {
+          feedbackEl.innerText = 'Enter a valid project path to deploy.';
+          feedbackEl.classList.remove('hidden');
+          return;
+        }
+
+        feedbackEl.innerText = 'Running security deployment check...';
+        feedbackEl.classList.remove('hidden');
+        deployButton.disabled = true;
+        deployButtonMobile.disabled = true;
+        animateDeploymentFlow();
+
+        try {
+          const response = await fetch(deployUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Alphatekx-Key': API_KEY,
+            },
+            body: JSON.stringify({ projectPath }),
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || 'Deployment failed.');
+          }
+
+          const stageLabel = data.finalSecurityStatus === 'DEPLOYED' ? 'Deployed' : data.finalSecurityStatus;
+          const progressValue = data.finalSecurityStatus === 'DEPLOYED' ? 100 : 92;
+          setDeployState({ label: 'Live', value: stageLabel, progress: progressValue, color: data.finalSecurityStatus === 'DEPLOYED' ? 'bg-emerald-500' : 'bg-amber-500' });
+          feedbackEl.innerHTML = `<strong>${stageLabel}</strong> &mdash; ${data.message || 'Deployment completed.'}`;
+          feedbackEl.classList.remove('hidden');
+          await fetchReport();
+        } catch (error) {
+          console.error(error);
+          setDeployState({ label: 'Secure', value: 'Failed', progress: 6, color: 'bg-rose-500' });
+          feedbackEl.innerText = error.message || 'Deployment request failed.';
+          feedbackEl.classList.remove('hidden');
+        } finally {
+          deployButton.disabled = false;
+          deployButtonMobile.disabled = false;
+          clearProgressTimers();
+        }
+      }
+
+      deployButton.addEventListener('click', deployProject);
+      deployButtonMobile.addEventListener('click', deployProject);
+      refreshButton.addEventListener('click', fetchReport);
+
+      setDeployState({ label: 'Secure', value: 'Ready', progress: 0, color: 'bg-slate-200 text-slate-950' });
+      fetchReport();
+    </script>
+  </body>
+</html>
