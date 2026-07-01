@@ -1,0 +1,43 @@
+{
+  "transactionID": "1c733860-e391-4df4-93d2-ca3a1120d20d",
+  "deployedAt": "2026-06-30T20:42:36.981Z",
+  "hostingProvider": "AlphaTekx Domain Engine",
+  "deploymentDomain": "pipeline-test-project-1c733860.alphatekx.name.ng",
+  "targetServer": "15.197.212.204",
+  "serviceCommand": "systemctl restart nginx",
+  "dnsRecords": {
+    "healthy": true,
+    "aRecords": [
+      "15.197.212.204"
+    ],
+    "cnameRecords": [],
+    "validFormat": true
+  },
+  "reloadInfo": {
+    "hostIp": "15.197.212.204",
+    "deploymentDomain": "pipeline-test-project-1c733860.alphatekx.name.ng",
+    "command": "systemctl restart nginx",
+    "simulated": true,
+    "reloadedAt": "2026-06-30T20:42:36.975Z"
+  },
+  "activation": {
+    "status": "active",
+    "domain": "pipeline-test-project-1c733860.alphatekx.name.ng",
+    "activatedAt": "2026-06-30T20:42:36.975Z"
+  },
+  "setupInstructions": {
+    "domain": "pipeline-test-project-1c733860.alphatekx.name.ng",
+    "targetDomain": "pipeline-test-project-1c733860.alphatekx.name.ng",
+    "records": [
+      {
+        "type": "CNAME",
+        "host": "@",
+        "value": "pipeline-test-project-1c733860.alphatekx.name.ng",
+        "purpose": "Route the apex domain to the managed deployment endpoint."
+      }
+    ]
+  },
+  "projectPath": "C:\\Users\\DELL\\Desktop\\Alphatekx\\app-cgqteick6nep\\pipeline-test-project",
+  "projectHash": "d41d8cd98f00b204e9800998ecf8427e",
+  "status": "DEPLOYED"
+}

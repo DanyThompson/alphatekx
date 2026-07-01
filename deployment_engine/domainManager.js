@@ -35,7 +35,37 @@ export function getDomainSetupInstructions(domain, targetDomain) {
         value: targetDomain,
         purpose: 'Route the apex domain to the managed deployment endpoint.',
       },
+      {
+        type: 'CNAME',
+        host: 'www',
+        value: targetDomain,
+        purpose: 'Mirror the managed deployment through the standard web host.',
+      },
     ],
+  };
+}
+
+export function provisionReverseProxySubdomain({ tenantId, deploymentDomain, projectName, transactionID }) {
+  const tenant = String(tenantId || 'default').toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').slice(0, 24) || 'default';
+  const project = String(projectName || 'project').toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').slice(0, 24) || 'project';
+
+  return {
+    status: 'provisioned',
+    tenantId: tenant,
+    deploymentDomain,
+    proxyHost: 'edge.alphatekx.name.ng',
+    upstream: '15.197.212.204',
+    port: 443,
+    route: `/${tenant}/${project}-${String(transactionID || '').slice(0, 8)}`,
+    records: [
+      {
+        type: 'CNAME',
+        host: tenant,
+        value: deploymentDomain,
+        purpose: 'Provision a tenant-isolated subdomain on the managed reverse proxy.',
+      },
+    ],
+    activatedAt: new Date().toISOString(),
   };
 }
 
