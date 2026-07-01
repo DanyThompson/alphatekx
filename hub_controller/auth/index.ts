@@ -121,7 +121,7 @@ export function startGoogleSignIn(): void {
     return;
   }
 
-  const redirectUri = `${window.location.origin}/auth/google/callback`;
+  const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI || `${window.location.origin}/auth/google/callback`;
   const state = Math.random().toString(36).slice(2);
   sessionStorage.setItem(SESSION_STATE_KEY, state);
 
