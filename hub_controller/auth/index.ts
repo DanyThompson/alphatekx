@@ -131,6 +131,8 @@ export function startGoogleSignIn(): void {
     response_type: 'token',
     scope: 'openid email profile',
     include_granted_scopes: 'true',
+    access_type: 'online',
+    response_mode: 'fragment',
     prompt: 'select_account',
     state,
   });
@@ -168,7 +170,13 @@ export async function completeGoogleOAuthCallback(): Promise<{ ok: true; session
   const expectedState = sessionStorage.getItem(SESSION_STATE_KEY);
 
   if (error) {
-    return { ok: false, reason: errorDescription || error };
+    const message = errorDescription || error;
+    return {
+      ok: false,
+      reason: message.includes('invalid_client')
+        ? 'Google rejected the OAuth client configuration. Verify that the client is published, the authorized redirect URI is https://alphatekx.name.ng/auth/google/callback, and the JavaScript origin includes https://alphatekx.name.ng.'
+        : message,
+    };
   }
 
   if (!expectedState || state !== expectedState) {
