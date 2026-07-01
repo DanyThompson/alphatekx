@@ -20,6 +20,11 @@ const SESSION_COOKIE_NAME = 'alphatekx_session';
 const SESSION_STATE_KEY = 'alphatekx_google_state';
 const SESSION_SECRET = import.meta.env.VITE_SESSION_SECRET || 'guardian-session-seed-2026';
 
+async function getSessionCryptoKey(): Promise<CryptoKey> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(SESSION_SECRET));
+  return crypto.subtle.importKey('raw', digest, 'AES-GCM', false, ['encrypt', 'decrypt']);
+}
+
 function base64UrlEncode(bytes: ArrayBuffer | Uint8Array): string {
   const buffer = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
   let binary = '';
@@ -42,8 +47,7 @@ function base64UrlDecode(value: string): Uint8Array {
 }
 
 async function encryptPayload(payload: string): Promise<string> {
-  const secretBytes = new TextEncoder().encode(SESSION_SECRET);
-  const key = await crypto.subtle.importKey('raw', secretBytes, 'AES-GCM', false, ['encrypt']);
+  const key = await getSessionCryptoKey();
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(payload));
   return `${base64UrlEncode(iv)}.${base64UrlEncode(encrypted)}`;
@@ -55,8 +59,7 @@ async function decryptPayload(token: string): Promise<string> {
     throw new Error('Invalid session token');
   }
 
-  const secretBytes = new TextEncoder().encode(SESSION_SECRET);
-  const key = await crypto.subtle.importKey('raw', secretBytes, 'AES-GCM', false, ['decrypt']);
+  const key = await getSessionCryptoKey();
   const iv = base64UrlDecode(ivPart);
   const encrypted = base64UrlDecode(payloadPart);
   const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, encrypted);
@@ -180,8 +183,11 @@ export async function completeGoogleOAuthCallback(): Promise<{ ok: true; session
   }
 
   if (!expectedState || state !== expectedState) {
+    sessionStorage.removeItem(SESSION_STATE_KEY);
     return { ok: false, reason: 'Invalid OAuth state detected.' };
   }
+
+  sessionStorage.removeItem(SESSION_STATE_KEY);
 
   if (!accessToken) {
     return { ok: false, reason: 'The Google callback did not return an access token.' };

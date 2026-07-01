@@ -1,28 +1,33 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { completeGoogleOAuthCallback, setSecureSession } from './index';
 
 export default function GoogleCallbackPage() {
-  const navigate = useNavigate();
   const [status, setStatus] = useState('Guardian is verifying your Google session…');
 
   useEffect(() => {
     let active = true;
 
     const run = async () => {
-      const result = await completeGoogleOAuthCallback();
+      try {
+        const result = await completeGoogleOAuthCallback();
 
-      if (!active) {
-        return;
+        if (!active) {
+          return;
+        }
+
+        if (!result.ok) {
+          setStatus(`Guardian denied access: ${result.reason}`);
+          return;
+        }
+
+        await setSecureSession(result.session);
+        setStatus('Redirecting to your AlphaTekx dashboard…');
+        window.location.replace('/dashboard');
+      } catch (error) {
+        if (active) {
+          setStatus(`Guardian denied access: ${error instanceof Error ? error.message : 'Unable to complete sign-in.'}`);
+        }
       }
-
-      if (!result.ok) {
-        setStatus(`Guardian denied access: ${result.reason}`);
-        return;
-      }
-
-      await setSecureSession(result.session);
-      navigate('/dashboard/overview', { replace: true });
     };
 
     void run();
@@ -30,7 +35,7 @@ export default function GoogleCallbackPage() {
     return () => {
       active = false;
     };
-  }, [navigate]);
+  }, []);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#050d1a] px-4 text-[#f0f6fc]">
