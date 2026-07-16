@@ -1,79 +1,61 @@
-const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
+# AlphaTekX God Craft OS
 
-# Base44 Project
+AlphaTekX turns ideas into Missions, coordinates AI Workers, produces Creations, and prepares them for Marketplace publishing and Launch.
 
-Use this repository to run and edit the app locally, then publish changes back through db.
-
-Any change pushed to the repo will also be reflected in the Base44 Builder.
-
-## Prerequisites
-
-1. Clone the repository using the project's Git URL.
-2. Navigate to the project directory.
-3. Install dependencies: `npm install`.
-4. Install the Base44 CLI: `npm install -g base44@latest`.
-
-See the [Base44 CLI docs](https://docs.db.com/developers/references/cli/get-started/overview) if you want to run Base44 commands directly.
-
-## Run Locally
-
-Run the full local development environment from the project root:
+## Local development
 
 ```bash
-base44 dev
-```
-
-`base44 dev` starts the local Base44 development backend and, when this app is configured for it, also starts the frontend dev server for you. Use the frontend URL printed by the command.
-
-For example, when the Base44 project config includes a `serveCommand`, `base44 dev` can launch the frontend too:
-
-```json5
-{
-  "site": {
-    "serveCommand": "npm run dev"
-  }
-}
-```
-
-In a Base44 project this lives in `base44/config.jsonc`.
-
-## Run Only The Frontend
-
-If you only want to work on the frontend against the hosted Base44 backend, run:
-
-```bash
+npm install
+npm run api
 npm run dev
 ```
 
-Open the local URL printed by Vite.
+The API runs on port 3001 and Vite proxies `/api/*` to it.
 
-## Use The Hosted Backend
+## Supabase setup
 
-For frontend-only development, create or update `.env.local` in the project root:
+1. Create a Supabase project.
+2. Open the SQL editor and run [`supabase/schema.sql`](supabase/schema.sql).
+   Existing Phase 3 projects should run [`supabase/phase4.sql`](supabase/phase4.sql) instead to add marketplace revenue safely.
+3. Enable Google in Authentication → Providers.
+4. Add `https://alphatekx.name.ng/auth` and your local `/auth` URL to the allowed redirect URLs.
+5. Copy `.env.example` to `.env.local` and fill the browser-safe Supabase values.
+
+RLS restricts Missions, Messages, Activities, Creations, Workers, and Profiles to their owners. Marketplace items are publicly readable. Credit deductions use the atomic `spend_credits` database function.
+
+Marketplace purchases are verified by `/api/marketplace/purchase`. Paid item amounts are checked against Paystack and the database before the atomic Supabase settlement function clones the creation, increments downloads, assigns 80% creator revenue, and records the 20% platform share.
+
+## Render deployment
+
+1. Push the repository to GitHub.
+2. In Render, create a Blueprint from the repository. Render reads [`render.yaml`](render.yaml).
+3. Alternatively create a Web Service manually with build command `npm install && npm run build` and start command `npm start`.
+4. Add every required value from `.env.example` in Render Dashboard > Environment. Do not expose `SUPABASE_SERVICE_ROLE_KEY`, `PAYSTACK_SECRET_KEY`, or AI provider keys with a `VITE_` prefix.
+5. Deploy and confirm the health log reports the injected Render port.
+6. In Render Settings > Custom Domains, add `alphatekx.name.ng`, then copy Render's exact DNS record into your DNS provider.
+7. Add `https://alphatekx.name.ng/auth` to Supabase Authentication redirect URLs and configure the live origin in Paystack.
+
+`server.mjs` serves `dist/`, handles SPA deep links, and owns all `/api/*` routes on Render. The files under `api/` are only Vercel adapters and are not required by Render.
+
+## Optional Vercel deployment
+
+1. Import the GitHub repository in Vercel.
+2. Framework preset: **Vite**.
+3. Build command: `npm run build`.
+4. Output directory: `dist`.
+5. Add every value from `.env.example` in Project Settings → Environment Variables. Keep `SUPABASE_SERVICE_ROLE_KEY`, `PAYSTACK_SECRET_KEY`, and AI provider keys server-only.
+6. Deploy, then open Settings → Domains and add `alphatekx.name.ng`.
+7. At your DNS provider, add the exact A/CNAME records Vercel displays. Do not guess the values.
+8. Add the final domain to Supabase Authentication URL Configuration and Paystack callback/origin settings.
+
+`vercel.json` provides SPA fallback while preserving `/api/*` serverless functions.
+
+The root `api/` directory contains Vercel Functions for Alpha chat, Paystack credit verification, and marketplace settlement. Vercel checks filesystem functions before applying the SPA rewrite, so refreshing `/mission/:id` returns `index.html` while `/api/*` continues to execute server-side.
+
+## Production checks
 
 ```bash
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=https://your-app.db.app
+npm run typecheck
+npm run lint
+npm run build
 ```
-
-`VITE_BASE44_APP_ID` identifies the Base44 app.
-
-`VITE_BASE44_APP_BASE_URL` tells the Base44 Vite plugin where to send local `/api` requests. Point it at your deployed Base44 app URL when you want the local frontend to use the hosted backend.
-
-When you use `base44 dev`, the command injects the local Base44 values for you, so `.env.local` is mainly needed for frontend-only workflows.
-
-## Publish Your Changes
-
-After pushing your changes to git, open the Base44 dashboard and publish the app:
-
-```bash
-base44 dashboard open
-```
-
-## Docs & Support
-
-Documentation: [https://docs.db.com/Integrations/Using-GitHub](https://docs.db.com/Integrations/Using-GitHub)
-
-Base44 CLI command reference: [https://docs.db.com/developers/references/cli/commands/introduction](https://docs.db.com/developers/references/cli/commands/introduction)
-
-Support: [https://app.db.com/support](https://app.db.com/support)

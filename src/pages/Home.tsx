@@ -1,210 +1,63 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowUp, Languages, Mic } from 'lucide-react'
-import GeminiLayout from '../components/layout/GeminiLayout'
-import { useSearchParams } from 'react-router-dom'
-
-type ChatMessage = { role: 'user' | 'ai'; text: string }
-
-function readJson<T>(key: string, fallback: T): T {
-  try {
-    const raw = window.localStorage.getItem(key)
-    if (!raw) return fallback
-    return JSON.parse(raw) as T
-  } catch {
-    return fallback
-  }
-}
-
-function renderText(text: string) {
-  return text.split('\n').map((line, index) => (
-    <p key={index} className={index ? 'mt-2' : ''}>
-      {line}
-    </p>
-  ))
-}
+import { useEffect, useMemo, useState } from 'react'
+import { Bot, ChevronRight, Plus, X } from 'lucide-react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { createMission, getMissions, hydrateMissionStore, subscribeStore } from '../lib/missionStore'
+import type { Mission, WorkerRole } from '../lib/types'
+import { createWorker, getWorkers, hydrateWorkers, subscribeWorkers } from '../lib/workerStore'
 
 export default function Home() {
-  const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [input, setInput] = useState('')
-  const [pending, setPending] = useState(false)
-  const [searchParams] = useSearchParams()
-  const chatIdRef = useRef<string | null>(null)
+  const [missions, setMissions] = useState<Mission[]>(getMissions())
+  const [workers, setWorkers] = useState(getWorkers())
+  const [showMission, setShowMission] = useState(false)
+  const [showWorker, setShowWorker] = useState(false)
+  const [showHelpers, setShowHelpers] = useState(false)
+  const [goal, setGoal] = useState('')
+  const [worker, setWorker] = useState({ name: '', role: 'coding' as WorkerRole, purpose: '', instructions: '' })
+  const [loading, setLoading] = useState(true)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const query = searchParams.get('q')?.toLowerCase() ?? ''
+  const visibleMissions = useMemo(() => missions.filter(mission => !query || mission.title.toLowerCase().includes(query) || mission.goal.toLowerCase().includes(query)), [missions, query])
+
+  useEffect(() => subscribeStore(() => setMissions(getMissions())), [])
+  useEffect(() => subscribeWorkers(() => setWorkers(getWorkers())), [])
+  useEffect(() => { Promise.all([hydrateMissionStore(), hydrateWorkers()]).finally(() => setLoading(false)) }, [])
   useEffect(() => {
-    const chatId = searchParams.get('id')
-    const chats = readJson<{ id: string; title: string; messages?: ChatMessage[] }[]>('recentChats', [])
-    if (chatId) {
-      const found = chats.find((chat) => chat.id === chatId)
-      if (found?.messages?.length) setMessages(found.messages)
+    if (searchParams.get('new') === '1') {
+      setShowMission(true)
+      try { const draft = localStorage.getItem('alphatekx-draft'); if (draft) { setGoal(draft); localStorage.removeItem('alphatekx-draft') } } catch {}
     }
   }, [searchParams])
 
-  const emptyState = messages.length === 0
+  const closeMission = () => { setShowMission(false); if (searchParams.has('new')) { searchParams.delete('new'); setSearchParams(searchParams, { replace: true }) } }
+  const submitMission = () => { if (!goal.trim()) return; const mission = createMission(goal); navigate(`/mission/${mission.id}`) }
+  const submitWorker = () => { if (!worker.name.trim() || !worker.purpose.trim()) return; createWorker(worker); setShowWorker(false); setWorker({ name: '', role: 'coding', purpose: '', instructions: '' }) }
 
-  const saveChat = (nextMessages: ChatMessage[], title: string) => {
-    if (!chatIdRef.current) chatIdRef.current = crypto.randomUUID()
-    const recents = readJson<{ id: string; title: string; messages?: ChatMessage[] }[]>('recentChats', [])
-    const filtered = recents.filter((chat) => chat.id !== chatIdRef.current)
-    const next = [{ id: chatIdRef.current, title, messages: nextMessages }, ...filtered].slice(0, 12)
-    try {
-      window.localStorage.setItem('recentChats', JSON.stringify(next))
-    } catch {}
-  }
+  if (loading) return <div className="min-h-screen px-5 py-10 md:px-10"><div className="mx-auto max-w-5xl animate-pulse"><div className="h-7 w-64 rounded bg-gray-200"/><div className="mt-6 h-32 rounded-xl bg-gray-200"/><div className="mt-10 space-y-3">{[1,2,3].map(item => <div key={item} className="h-24 rounded-xl bg-gray-200"/>)}</div></div></div>
 
-  const submit = async (prompt = input) => {
-    if (!prompt.trim() || pending) return
-    const userMessage: ChatMessage = { role: 'user', text: prompt }
-    const nextMessages = [...messages, userMessage]
-    setMessages(nextMessages)
-    setInput('')
-    setPending(true)
-
-    const title = prompt.slice(0, 42)
-    saveChat(nextMessages, title)
-
-    try {
-      const endpoint = '/api/alpha'
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          mode: 'chat',
-          prompt: `You are Alphatekx General Chat. Do not build an app unless the user explicitly asks to open Builder. Answer normally and helpfully. The user asks: ${prompt}`,
-          messages: nextMessages,
-        }),
-      })
-      if (!response.ok) throw new Error(`API ${response.status}`)
-      const payload = await response.json()
-      const answer = payload.response || payload.text || payload.message || payload.content || payload.data?.text
-      if (!answer) throw new Error('Empty API response')
-      const aiMessage: ChatMessage = { role: 'ai', text: String(answer) }
-      const finalMessages = [...nextMessages, aiMessage]
-      setMessages(finalMessages)
-      saveChat(finalMessages, title)
-    } catch {
-      const fallback: ChatMessage = { role: 'ai', text: 'I could not reach the AI service right now. You can still build a real app by opening the hamburger and choosing Builder.' }
-      const finalMessages = [...nextMessages, fallback]
-      setMessages(finalMessages)
-      saveChat(finalMessages, title)
-    } finally { setPending(false) }
-  }
-
-  const chips = useMemo(
-    () => ['Explain quantum', 'Build a landing page', 'Write a business plan', 'Code a game'],
-    [],
-  )
-
-  return (
-    <GeminiLayout activeTool="builder">
-      <div className="flex h-full min-h-0 flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto px-4 py-8">
-          {emptyState ? (
-            <div className="mx-auto mt-24 max-w-3xl text-center">
-              <h1 className="text-[42px] font-bold leading-tight text-slate-900">Hello, what will we build today?</h1>
-              <div className="hidden">
-                <Languages className="mr-3 text-slate-400" size={18} />
-                <input
-                  value={input}
-                  onChange={(event) => setInput(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' && !event.shiftKey) {
-                      event.preventDefault()
-                      void submit()
-                    }
-                  }}
-                  className="min-w-0 flex-1 bg-transparent text-slate-900 outline-none placeholder:text-slate-400"
-                  placeholder="Ask Alphatekx anything..."
-                />
-                <button className="grid size-10 place-items-center rounded-full bg-slate-100 text-slate-500" type="button">
-                  ✨
-                </button>
-                <button className="ml-2 grid size-10 place-items-center rounded-full bg-slate-100 text-slate-500" type="button">
-                  <Mic size={16} />
-                </button>
-                <button
-                  onClick={() => void submit()}
-                  className="ml-2 grid size-10 place-items-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-200"
-                  type="button"
-                >
-                  <ArrowUp size={16} />
-                </button>
-              </div>
-              <div className="hidden">
-                {chips.map((chip) => (
-                  <button
-                    key={chip}
-                    onClick={() => void submit(chip)}
-                    className="glass rounded-full border border-white/70 bg-white/70 px-4 py-2 text-sm text-slate-700 shadow-sm"
-                  >
-                    {chip}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="mx-auto flex max-w-3xl flex-col gap-4">
-              {messages.map((message, index) =>
-                message.role === 'user' ? (
-                  <div key={index} className="ml-auto max-w-[70%] rounded-[24px] rounded-br-md bg-slate-900 px-5 py-3 text-white shadow-sm">
-                    {renderText(message.text)}
-                  </div>
-                ) : (
-                  <div key={index} className="mr-auto max-w-[75%] rounded-[24px] rounded-bl-md border border-white/70 bg-white/75 px-5 py-3 text-slate-900 shadow-sm backdrop-blur-2xl">
-                    {renderText(message.text)}
-                  </div>
-                ),
-              )}
-              {pending && (
-                <div className="mr-auto rounded-[24px] rounded-bl-md border border-white/70 bg-white/75 px-5 py-3 text-slate-900 shadow-sm backdrop-blur-2xl">
-                  Thinking...
-                </div>
-              )}
-            </div>
-          )}
+  return <div className="min-h-[calc(100vh-64px)] px-5 py-8 md:px-10 md:py-10">
+    <div className="mx-auto max-w-5xl">
+      <section>
+        <h1 className="text-xl font-semibold md:text-2xl">What do you want to build today?</h1>
+        <p className="mt-2 text-sm text-gray-500">Describe an app, website, lesson, or business idea.</p>
+        <div className="mt-5 rounded-xl border border-gray-200 bg-white p-3 shadow-sm focus-within:border-gray-400">
+          <textarea value={goal} onChange={event => setGoal(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submitMission() } }} className="h-24 w-full resize-none px-2 py-2 text-base outline-none" placeholder="Build a school website, Learn React, Create a store..."/>
+          <div className="flex justify-end"><button onClick={submitMission} disabled={!goal.trim()} className="min-h-11 rounded-lg bg-black px-5 text-sm font-medium text-white disabled:opacity-40" type="button">Start</button></div>
         </div>
+      </section>
 
-        <div className="border-t border-white/60 bg-white/35 px-4 py-4 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-3xl items-center gap-2 rounded-full border border-white/70 bg-white/80 px-4 py-3 shadow-lg shadow-slate-200/50">
-            <input
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' && !event.shiftKey) {
-                  event.preventDefault()
-                  void submit()
-                }
-              }}
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-slate-400"
-              placeholder="Ask Alphatekx anything..."
-            />
-            <button className="rounded-full p-2 text-slate-500 hover:bg-white" type="button">
-              ✨
-            </button>
-            <button className="rounded-full p-2 text-slate-500 hover:bg-white" type="button">
-              <Mic size={16} />
-            </button>
-            <button
-              onClick={() => void submit()}
-              className="grid size-11 place-items-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-200"
-              type="button"
-            >
-              <ArrowUp size={18} />
-            </button>
-          </div>
-          {emptyState && (
-            <div className="mx-auto mt-4 flex max-w-3xl flex-wrap justify-center gap-2">
-              {chips.map((chip) => (
-                <button
-                  key={chip}
-                  onClick={() => void submit(chip)}
-                  className="glass rounded-full border border-white/70 bg-white/70 px-4 py-2 text-sm text-slate-700 shadow-sm"
-                >
-                  {chip}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </GeminiLayout>
-  )
+      <section className="mt-10">
+        <div className="flex items-center justify-between"><div><h2 className="text-xl font-semibold">Recent missions</h2>{query && <p className="mt-1 text-sm text-gray-500">Results for “{query}”</p>}</div><button onClick={() => setShowMission(true)} className="flex min-h-11 items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium" type="button"><Plus size={16}/>New mission</button></div>
+        {visibleMissions.length ? <div className="mt-5 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">{visibleMissions.map((mission, index) => <button key={mission.id} onClick={() => navigate(`/mission/${mission.id}`)} className={`flex min-h-24 w-full items-center gap-4 px-5 py-4 text-left hover:bg-gray-50 ${index ? 'border-t border-gray-200' : ''}`} type="button"><div className="min-w-0 flex-1"><div className="flex items-center gap-3"><h3 className="truncate text-sm font-semibold">{mission.title}</h3><span className="text-xs capitalize text-gray-400">{mission.status}</span></div><p className="mt-1 truncate text-sm text-gray-500">{mission.goal}</p><div className="mt-3 h-1 overflow-hidden rounded-full bg-gray-100"><div className="h-full rounded-full bg-black" style={{ width: `${mission.progress}%` }}/></div></div><div className="shrink-0 text-right"><p className="text-xs text-gray-400">{timeAgo(mission.createdAt)}</p><ChevronRight className="ml-auto mt-2 text-gray-400" size={17}/></div></button>)}</div> : <button onClick={() => setShowMission(true)} className="mt-5 grid min-h-56 w-full place-items-center rounded-xl border border-dashed border-gray-300 bg-white p-6 text-center" type="button"><span><span className="mx-auto grid size-11 place-items-center rounded-full bg-gray-100"><Plus size={18}/></span><strong className="mt-4 block text-sm">No missions yet</strong><span className="mt-2 block text-sm text-gray-500">Describe your idea above to start.</span></span></button>}
+      </section>
+
+      <section className="mt-8 rounded-xl border border-gray-200 bg-white p-5 shadow-sm"><button onClick={() => setShowHelpers(value => !value)} className="flex min-h-11 w-full items-center justify-between text-left" type="button"><span><strong className="block text-sm">AI helpers</strong><span className="mt-1 block text-sm text-gray-500">Specialists you can mention in a mission.</span></span><span className="text-sm text-gray-500">{workers.length} {showHelpers ? 'Hide' : 'Manage'}</span></button>{showHelpers && <div className="mt-4 border-t border-gray-200 pt-4"><div className="flex flex-wrap gap-2">{workers.map(item => <span key={item.id} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-gray-100 px-3 text-sm"><Bot size={15}/>@{item.name.replace(/\s+/g, '')}</span>)}<button onClick={() => setShowWorker(true)} className="min-h-10 rounded-lg border border-gray-300 px-3 text-sm" type="button">Add helper</button></div></div>}</section>
+    </div>
+
+    {showMission && <Modal title="New mission" onClose={closeMission}><textarea autoFocus value={goal} onChange={event => setGoal(event.target.value)} className="h-36 w-full resize-none rounded-xl border border-gray-300 p-4 outline-none focus:border-gray-500" placeholder="What do you want to build or learn?"/><button onClick={submitMission} disabled={!goal.trim()} className="mt-4 min-h-12 w-full rounded-lg bg-black font-medium text-white disabled:opacity-40">Create mission</button></Modal>}
+    {showWorker && <Modal title="New AI helper" onClose={() => setShowWorker(false)}><div className="space-y-3"><input value={worker.name} onChange={event => setWorker({ ...worker, name: event.target.value })} className="field" placeholder="Marketing Assistant"/><select value={worker.role} onChange={event => setWorker({ ...worker, role: event.target.value as WorkerRole })} className="field">{['marketing','coding','support','sales','research','business'].map(role => <option key={role}>{role}</option>)}</select><input value={worker.purpose} onChange={event => setWorker({ ...worker, purpose: event.target.value })} className="field" placeholder="What should this helper do?"/><textarea value={worker.instructions} onChange={event => setWorker({ ...worker, instructions: event.target.value })} className="h-24 w-full resize-none rounded-xl border border-gray-300 p-4 outline-none" placeholder="Optional instructions"/></div><button onClick={submitWorker} className="mt-4 min-h-12 w-full rounded-lg bg-black font-medium text-white">Create helper</button></Modal>}
+  </div>
 }
+
+function timeAgo(value: string) { const seconds = Math.max(1, Math.floor((Date.now() - new Date(value).getTime()) / 1000)); if (seconds < 60) return 'Just now'; const minutes = Math.floor(seconds / 60); if (minutes < 60) return `${minutes}m ago`; const hours = Math.floor(minutes / 60); if (hours < 24) return `${hours}h ago`; return `${Math.floor(hours / 24)}d ago` }
+function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) { return <div className="fixed inset-0 z-50 grid place-items-center bg-black/30 p-4" onMouseDown={onClose}><div className="w-full max-w-xl rounded-xl border border-gray-200 bg-white p-6 shadow-sm" onMouseDown={event => event.stopPropagation()}><div className="mb-5 flex items-center justify-between"><h2 className="text-xl font-semibold">{title}</h2><button onClick={onClose} className="grid size-11 place-items-center rounded-lg hover:bg-gray-50" aria-label="Close"><X size={18}/></button></div>{children}</div></div> }

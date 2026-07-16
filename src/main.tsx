@@ -13,10 +13,4 @@ class ErrorBoundary extends React.Component<React.PropsWithChildren, { error: Er
   }
 }
 
-// Safe environment guards for optional future data integrations.
-export const supabaseConfig = {
-  url: import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co',
-  anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-anon-key',
-}
-
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><ErrorBoundary><BrowserRouter><App /></BrowserRouter></ErrorBoundary></React.StrictMode>)
