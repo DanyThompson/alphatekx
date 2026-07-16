@@ -66,7 +66,11 @@ export default function Home() {
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, messages: nextMessages }),
+        body: JSON.stringify({
+          mode: 'chat',
+          prompt: `You are Alphatekx General Chat. Do not build an app unless the user explicitly asks to open Builder. Answer normally and helpfully. The user asks: ${prompt}`,
+          messages: nextMessages,
+        }),
       })
       if (!response.ok) throw new Error(`API ${response.status}`)
       const payload = await response.json()
