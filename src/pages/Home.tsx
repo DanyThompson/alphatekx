@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowUp, Mic } from 'lucide-react'
+import { ArrowUp, Languages, Mic } from 'lucide-react'
 import GeminiLayout from '../components/layout/GeminiLayout'
 import { useSearchParams } from 'react-router-dom'
 
