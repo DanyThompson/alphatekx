@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
 import Builder from './pages/Builder'
+import Landing from './pages/Landing'
 
 function PlaceholderPage({ label }: { label: string }) {
   return (
@@ -16,7 +17,7 @@ function PlaceholderPage({ label }: { label: string }) {
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/home" replace />} />
+      <Route path="/" element={<Landing />} />
       <Route path="/home" element={<Home />} />
       <Route path="/builder" element={<Builder />} />
       <Route path="/writer" element={<PlaceholderPage label="Writer" />} />
