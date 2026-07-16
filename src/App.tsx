@@ -1,6 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import Home from '@/pages/Home'
-import Builder from '@/pages/Builder'
+import Home from './pages/Home'
+import Builder from './pages/Builder'
 
 function PlaceholderPage({ label }: { label: string }) {
   return (

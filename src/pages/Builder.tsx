@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowUp, Monitor, Rocket, Share2, Smartphone, Sparkles, Tablet, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { buildRealApp } from '@/lib/aiBuilder'
-import { fallbackTemplate } from '@/lib/generator'
-import { ToolDrawer } from '@/components/layout/GeminiLayout'
+import { buildRealApp } from '../lib/aiBuilder'
+import { fallbackTemplate } from '../lib/generator'
+import { ToolDrawer } from '../components/layout/GeminiLayout'
 
 type ChatMessage = { role: 'user' | 'assistant'; text: string }
 

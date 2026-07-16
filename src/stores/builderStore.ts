@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { generateApp } from '@/lib/generator'
+import { generateApp } from '../lib/generator'
 
 export type BuilderMessage = { id: number; role: 'user' | 'assistant'; text: string }
 
