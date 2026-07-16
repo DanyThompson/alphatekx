@@ -7,7 +7,8 @@ every button must have a real onClick mutation. Build a polished 400-700 line ap
 `;
 
 export async function buildRealApp(prompt: string): Promise<string> {
-  const endpoint = import.meta.env.VITE_ALPHA_API_URL || '/api/alpha';
+  const configured = import.meta.env.VITE_ALPHA_API_URL || '';
+  const endpoint = configured && !configured.includes('localhost') && !configured.includes('127.0.0.1') ? configured : '/api/alpha';
   const response = await fetch(endpoint, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ prompt: `${HARD_REQUIREMENTS}\nUser request: ${prompt}`, mode: 'builder' }),

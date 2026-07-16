@@ -62,7 +62,8 @@ export default function Home() {
     saveChat(nextMessages, title)
 
     try {
-      const endpoint = import.meta.env.VITE_ALPHA_API_URL || '/api/alpha'
+      const configured = import.meta.env.VITE_ALPHA_API_URL || ''
+      const endpoint = configured && !configured.includes('localhost') && !configured.includes('127.0.0.1') ? configured : '/api/alpha'
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
